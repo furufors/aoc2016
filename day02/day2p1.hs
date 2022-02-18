@@ -3,15 +3,12 @@
 data Direction = U | D | L | R
 
 main :: IO ()
-main = interact $ show . solve . map parsein . lines
+main = interact $ show . solve 5 . map parsein . lines
 
-solve :: [[Direction]] -> [Integer]
-solve dss = solve2 5 dss
-    where
-        solve2 :: Integer -> [[Direction]] -> [Integer]
-        solve2 _ [      ] = []
-        solve2 a (ds:dss) = let i1 = foldl step a ds
-                            in i1:(solve2 i1 dss)
+solve :: Integer -> [[Direction]] -> [Integer]
+solve _ [      ] = []
+solve a (ds:dss) = let i1 = foldl step a ds
+                   in i1:(solve i1 dss)
 
 step :: Integer -> Direction -> Integer
 step i L | i `elem` [1,4,7] = i
