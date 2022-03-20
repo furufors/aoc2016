@@ -15,14 +15,14 @@ parseIP s = let (outside, inside) = inAndOut s
 
 inAndOut :: String -> ([String], [String])
 inAndOut s = let pieces = splitWhen (\a -> a == '[' || a == ']') s
-                 odds = [pieces!!i | i <- [0..(length pieces - 1)], odd i]
-                 evens = [pieces!!i | i <- [0..(length pieces - 1)], even i]
+                 odds   = [pieces!!i | i <- [0..(length pieces - 1)], odd i]
+                 evens  = [pieces!!i | i <- [0..(length pieces - 1)], even i]
              in (odds, evens)
 
 hasABA :: [Pair] -> String -> [Pair]
-hasABA ps ([])         = ps
-hasABA ps (a:[])       = ps
-hasABA ps (a:b:[])     = ps
+hasABA ps ([])       = ps
+hasABA ps (a:[])     = ps
+hasABA ps (a:b:[])   = ps
 hasABA ps (a:b:c:es) = if (a == c && a /= b)
                        then (a,b):(hasABA ps (b:c:es))
                        else hasABA ps (b:c:es)
