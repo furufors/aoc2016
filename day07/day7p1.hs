@@ -11,8 +11,8 @@ parseIP s = let (outside, inside) = inAndOut s
 
 inAndOut :: String -> ([String], [String])
 inAndOut s = let pieces = splitWhen (\a -> a == '[' || a == ']') s
-                 odds = [pieces!!i | i <- [0..(length pieces - 1)], odd i]
-                 evens = [pieces!!i | i <- [0..(length pieces - 1)], even i]
+                 odds   = [pieces!!i | i <- [0..(length pieces - 1)], odd i]
+                 evens  = [pieces!!i | i <- [0..(length pieces - 1)], even i]
              in (odds, evens)
 
 hasABBA :: String -> Bool
