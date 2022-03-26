@@ -2,6 +2,7 @@
 #!/usr/bin/env stack
 -- stack --resolver lts-18.18 script
 import Data.List (isPrefixOf)
+import Text.Parsec hiding (count)
 
 data OnOff = On | Off
 data Action  = Rect Int Int | Row Int Int | Col Int Int
@@ -26,16 +27,30 @@ toInt On  = 1
 toInt Off = 0
 
 parsein :: String -> Action
-parsein s | isPrefixOf "rect" s = let a = drop 5 s
-                                      x = read $ takeWhile (`elem` ['0'..'9']) a
-                                      y = read . drop 1 $ dropWhile (`elem` ['0'..'9']) a
-                                  in Rect x y
-parsein s | isPrefixOf "rotate row" s = let a = drop 13 s
-                                            i = read $ takeWhile (`elem` ['0'..'9']) a
-                                            o = read . drop 4 $ dropWhile (`elem` ['0'..'9']) a
-                                        in Row i o
-parsein s | isPrefixOf "rotate column" s = let a = drop 16 s
-                                               i = read $ takeWhile (`elem` ['0'..'9']) a
-                                               o = read . drop 4 $ dropWhile (`elem` ['0'..'9']) a
-                                           in Col i o
-parsein s = error $ "Cannot parse string: " ++ s
+parsein input = case parse (try parseRect <|> try parseRow <|> try parseColumn) "parsein" input of
+    Left err -> error $ show err
+    Right a -> a
+
+parseRect :: Parsec String () Action
+parseRect = do
+    _ <- string "rect "
+    x <- read <$> many1 digit
+    _ <- string "x"
+    y <- read <$> many1 digit
+    return $ Rect x y
+
+parseRow :: Parsec String () Action
+parseRow = do
+    _ <- string "rotate row y="
+    i <- read <$> many1 digit
+    _ <- string " by "
+    o <- read <$> many1 digit
+    return $ Row i o
+
+parseColumn :: Parsec String () Action
+parseColumn = do
+    _ <- string "rotate column x="
+    i <- read <$> many1 digit
+    _ <- string " by "
+    o <- read <$> many1 digit
+    return $ Col i o

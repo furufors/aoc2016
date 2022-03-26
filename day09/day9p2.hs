@@ -1,7 +1,6 @@
 #!/usr/bin/env stack
 -- stack --resolver lts-18.18 script
 main :: IO ()
---main = interact $ show . length . decompress . head . lines
 main = interact $ unlines . map (show . decompress) . lines
 
 decompress :: String -> Int
