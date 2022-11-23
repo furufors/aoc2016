@@ -19,9 +19,7 @@ isKey hash = case maybeFirstTriplet (snd hash) of
     Nothing -> False
 
 maybeFirstTriplet :: String -> Maybe Char
-maybeFirstTriplet [] = Nothing
-maybeFirstTriplet (x:[]) = Nothing
-maybeFirstTriplet (x:y:[]) = Nothing
+maybeFirstTriplet x | length x < 3 = Nothing
 maybeFirstTriplet (x:y:z:ss) = if x == y && x == z then Just x else maybeFirstTriplet (y:z:ss)
 
 fiveInNext1000 :: Char -> (Int, String) -> Bool
