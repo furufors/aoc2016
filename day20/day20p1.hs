@@ -4,11 +4,10 @@ import Data.List
 import Data.Ord
 
 main :: IO ()
-main = interact $ show . findLowest . converge (unify . nub . combineAll . sortBy (comparing fst)) . map parse . lines
+main = interact $ show . findLowest . converge (reverse . combineAll . reverse . combineAll . nub . sortBy (comparing fst)) . map parse . lines
 
 overlapOrAdjacent :: (Int,Int) -> (Int, Int) -> Bool
-overlapOrAdjacent (a,b) (c,d) = (a >= c && a <= d) || (b >= c && b <= d) || (c >= a && c <= b) || (d >= a && d <= b) ||  b + 1 == c
-
+overlapOrAdjacent (a,b) (c,d) = (a >= c && a <= d) || (b >= c && b <= d) || (c >= a && c <= b) || (d >= a && d <= b) ||  abs (b - c) == 1 || abs (a - d) == 1
 
 combine :: (Int,Int) -> (Int, Int) -> (Int,Int)
 combine (a,b) (c,d) = (min a c, max b d)
@@ -19,10 +18,6 @@ combineAll (r:rs) = r:(combineAll $ map (\r' -> if overlapOrAdjacent r r' then c
 
 converge :: Eq a => (a -> a) -> a -> a
 converge f a = let a' = f a in if a == a' then a else converge f a'
-
-unify :: [] (Int,Int) -> [] (Int,Int)
-unify ((l1,h1):(l2,h2):r) = if l2 + 1 <= h1 && h2 >= h1 then unify ((l1,h2):r) else (l1,h1):unify ((l2,h2):r)
-unify x = x
 
 parse :: String -> (Int,Int)
 parse s = let (a,b) = span (/='-') s in (read a, read (tail b))
