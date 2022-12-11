@@ -12,10 +12,12 @@ data BotOrOutput = Bot Int | Output Int deriving (Show)
 data Action = Value Val JustBot | Gives JustBot BotOrOutput BotOrOutput deriving (Show)
 
 main :: IO ()
-main = interact $ show . step M.empty . parMap rpar parsein . lines
+main = interact $ show . key . step M.empty . parMap rpar parsein . lines
 
-step :: BotStatus -> [Action] -> Int
-step bs [] = error "Didn't find what you were looking for."
+key = foldl1 (*) . map snd . filter ((\x -> elem x [0,1,2]) . fst)
+
+step :: BotStatus -> [Action] -> [(Int,Int)]
+step bs [] = []
 step bs ((Value v b):rest) =
     let bs' = case M.lookup b bs of
                 (Just (Nothing, Nothing)) -> M.insert b (Just v, Nothing) bs
@@ -27,13 +29,13 @@ step bs (hd@(Gives i (Bot low) (Bot high)):rest) = case M.lookup i bs of
     (Just (Just a, Just b))-> step bs ((Value (min a b) low):(Value (max a b) high):rest)
     otherwise -> step bs (rest ++ [hd]) -- Move to back
 step bs (hd@(Gives i (Output low) (Bot high)):rest) = case M.lookup i bs of
-    (Just (Just a, Just b))-> trace (show (low, min a b)) $ step bs ((Value (max a b) high):rest)
+    (Just (Just a, Just b))-> (low, min a b):(step bs ((Value (max a b) high):rest))
     otherwise -> step bs (rest ++ [hd]) -- Move to back
 step bs (hd@(Gives i (Bot low) (Output high)):rest) = case M.lookup i bs of
-    (Just (Just a, Just b))-> trace (show (high, max a b)) $ step bs ((Value (min a b) low):rest)
+    (Just (Just a, Just b))-> (high, max a b):(step bs ((Value (min a b) low):rest))
     otherwise -> step bs (rest ++ [hd]) -- Move to back
 step bs (hd@(Gives i (Output low) (Output high)):rest) = case M.lookup i bs of
-    (Just (Just a, Just b))-> trace (show [(high, max a b), (low, min a b)]) $ step bs rest
+    (Just (Just a, Just b))-> [(high, max a b), (low, min a b)] ++ step bs rest
     otherwise -> step bs (rest ++ [hd]) -- Move to back
 
 keyOfValue :: (Maybe Int, Maybe Int) -> [(JustBot,(Maybe Int, Maybe Int))] -> Maybe Int
